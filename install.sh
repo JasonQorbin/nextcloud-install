@@ -11,11 +11,12 @@ else
     NC_DB_LOCATION="${DB_LOCATION}"
 fi
 
-if [[ -z "${SERVER_NAME}" ]]; then
+if [[ -z "${SERVER_NAME}" ]] || [[ -z "${DOWNLOAD_LINK}" ]]; then
   echo "ENV file not valid. Use the example file to make a new one."
   exit 1
 else
     NC_SERVER_NAME="${SERVER_NAME}"
+    NC_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 fi
 
 
@@ -23,8 +24,7 @@ fi
 # Note: Run this script with sudo privileges
 
 # Setting up variables:
-download_link=https://download.nextcloud.com/server/releases/nextcloud-26.0.13.tar.bz2
-file_name=$(basename $download_link)
+file_name=$(basename $NC_DOWNLOAD_LINK)
 document_root=/var/www/nextcloud
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -38,8 +38,8 @@ apt-get install -y nano wget
 echo -e "${GREEN}Installing Mariadb${DEFAULT_COLOUR}"
 apt-get install -y mariadb-server
 
-echo -e "${GREEN}Configuring database location${DEFAULT_COLOUR}"
-if [ "$use_default_db_location" = false ] then;
+if [ $use_default_db_location = false ]; then
+    echo -e "${GREEN}Configuring database location${DEFAULT_COLOUR}"
     service mariadb stop
     mkdir $NC_DB_LOCATION
     cp -r /var/lib/mysql/* $NC_DB_LOCATION
@@ -115,7 +115,7 @@ a2enmod ssl
 # Install NextCloud
 
 pushd /tmp
-wget $download_link
+wget $NC_DOWNLOAD_LINK
 mkdir nc
 
 echo -e "${GREEN}Unpacking NextCloud archive${DEFAULT_COLOUR}"
