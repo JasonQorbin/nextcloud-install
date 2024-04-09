@@ -3,11 +3,18 @@
 # Load environment variables from .env file
 [ ! -f .env ] || export $(grep -v '^#' .env | xargs)
 
-if [[ -z "${DB_LOCATION}" ]] && [[ -z "${SERVER_NAME}" ]]; then
+if [[ -z "${DB_LOCATION}" ]]; then
+    echo "Database location not specified. Using the mariadb default"
+    use_default_db_location=true
+else 
+    use_default_db_location=false
+    NC_DB_LOCATION="${DB_LOCATION}"
+fi
+
+if [[ -z "${SERVER_NAME}" ]]; then
   echo "ENV file not valid. Use the example file to make a new one."
   exit 1
 else
-    NC_DB_LOCATION="${DB_LOCATION}"
     NC_SERVER_NAME="${SERVER_NAME}"
 fi
 
@@ -32,14 +39,16 @@ echo -e "${GREEN}Installing Mariadb${DEFAULT_COLOUR}"
 apt-get install -y mariadb-server
 
 echo -e "${GREEN}Configuring database location${DEFAULT_COLOUR}"
-service mariadb stop
-mkdir $NC_DB_LOCATION
-cp -r /var/lib/mysql/* $NC_DB_LOCATION
-chown -R mysql:mysql $NC_DB_LOCATION
-echo "" >> /etc/mysql/mariadb.cnf
-echo "[server]" >> /etc/mysql/mariadb.cnf
-echo "datadir = $NC_DB_LOCATION" >> /etc/mysql/mariadb.cnf
-service mariadb start
+if [ "$use_default_db_location" = false ] then;
+    service mariadb stop
+    mkdir $NC_DB_LOCATION
+    cp -r /var/lib/mysql/* $NC_DB_LOCATION
+    chown -R mysql:mysql $NC_DB_LOCATION
+    echo "" >> /etc/mysql/mariadb.cnf
+    echo "[server]" >> /etc/mysql/mariadb.cnf
+    echo "datadir = $NC_DB_LOCATION" >> /etc/mysql/mariadb.cnf
+    service mariadb start
+fi
 
 echo -e "${GREEN}Installing PHP and required modules${DEFAULT_COLOUR}"
 apt-get install -y php php-xml php-curl php-gd php-json php-mbstring php-zip php-mysql
