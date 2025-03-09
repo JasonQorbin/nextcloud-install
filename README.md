@@ -28,3 +28,13 @@ sudo docker exec -it container_id /bin/bash
 5. Make the script executable with `chmod u+x install.sh`.
 6. Create a `.env` file by making a copy of the `.env.sample` file and filling in all the fields.
 7. Run the script with `./install.sh`.
+
+## SSL configuration
+
+The current version all but requires that you use TLS. If you don't, it disables critical features like copying links
+to the clipboard. In this regard I need to update the docker image to use the SLL configuration for the site but for
+future installs, the configuration uses the self-signed certificate that comes with the apache2 installation. The
+steps are:
+
+1. Enable the SSL module of apache2 with `a2enmod ssl`
+2. Apply the site configuration in this folder.
