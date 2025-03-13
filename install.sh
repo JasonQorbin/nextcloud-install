@@ -114,6 +114,7 @@ a2enmod ssl
 
 # Install NextCloud
 
+echo -e "${GREEN}Downloading NextCloud${DEFAULT_COLOUR}"
 pushd /tmp
 wget $NC_DOWNLOAD_LINK
 mkdir nc
@@ -121,6 +122,7 @@ mkdir nc
 echo -e "${GREEN}Unpacking NextCloud archive${DEFAULT_COLOUR}"
 tar -xf $file_name -C ./nc
 
+echo -e "${GREEN}Installing NextCloud${DEFAULT_COLOUR}"
 # Delete the theme and config folders because we will use our own
 rm -rf ./nextcloud/themes
 rm -rf ./nextcloud/config
@@ -133,7 +135,21 @@ chown -R www-data:www-data $document_root
 
 service apache2 start
 
+
+echo -e "${GREEN}Cleaning up...${DEFAULT_COLOUR}"
 rm -r nc
 
 # Remember to delete downloaded files
 rm $file_name
+
+echo -e "${GREEN}Creating startup script${DEFAULT_COLOUR}"
+
+pushd /usr/local/bin
+touch startup.sh
+echo "service mariadb start
+service apache2 start
+sleep infinity" >> startup.sh
+chmod u+x startup.sh
+chmod o+x startup.sh
+
+echo -e "${GREEN}Done${DEFAULT_COLOUR}"
