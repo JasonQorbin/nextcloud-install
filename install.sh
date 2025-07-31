@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Load environment variables from .env file
+# Load environment variables from .env file only if the file exists
 [ ! -f .env ] || export $(grep -v '^#' .env | xargs)
 
 if [[ -z "${DB_LOCATION}" ]]; then
@@ -11,13 +11,19 @@ else
     NC_DB_LOCATION="${DB_LOCATION}"
 fi
 
-if [[ -z "${SERVER_NAME}" ]] || [[ -z "${DOWNLOAD_LINK}" ]]; then
-  echo "ENV file not valid. Use the example file to make a new one."
+# SERVER_NAME and DOWNLOAD_LINK are required variables. Exit if they are not present.
+if [[ -z "${SERVER_NAME}" ]]; then
+  echo "SERVER_NAME environment variable containing the qualified name of the server is required"
   exit 1
-else
-    NC_SERVER_NAME="${SERVER_NAME}"
-    NC_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 fi
+
+if [[ -z "${DOWNLOAD_LINK}" ]]; then
+  echo "DOWNLOAD_LINK environment variable containing the link to the Nextcloud tarball is required"
+  exit 1
+fi
+
+NC_SERVER_NAME="${SERVER_NAME}"
+NC_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 
 
 
