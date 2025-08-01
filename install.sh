@@ -41,6 +41,16 @@ echo -e "${GREEN}Updating system${DEFAULT_COLOUR}"
 apt-get update -y && apt-get upgrade -y
 apt-get install -y nano wget
 
+# Install tzdata and set timezone so that the maria-db installation doesn't get interrupted.
+# If the TIME_ZONE environment variable has not been set then use UCT as the default.
+if [[ -z "${TIME_ZONE}" ]]; then
+    TIME_ZONE="UCT"
+fi
+
+DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends tzdata
+
+timedatectl set-timezone ${TIME_ZONE}
+
 echo -e "${GREEN}Installing Mariadb${DEFAULT_COLOUR}"
 apt-get install -y mariadb-server
 
