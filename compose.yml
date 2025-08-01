@@ -1,5 +1,5 @@
 services:
   nextcloud:
-    image: nc-test:latest
+    image: nc-test:http
     ports: 
-      - "443:443"
+      - "80:80"

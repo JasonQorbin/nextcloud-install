@@ -88,31 +88,21 @@ echo -e "${GREEN}Create site configuration for Nextcloud${DEFAULT_COLOUR}"
 service apache2 stop
 # Create a site configuration from Nextcloud that uses the default self-signed certificate.
 touch /etc/apache2/sites-available/NextCloud.conf
+
 echo "<VirtualHost *:80>
-	ServerName  $NC_SERVER_NAME
-	Redirect permanent / https://$NC_SERVER_NAME	
-</VirtualHost>
+  DocumentRoot $document_root
+  ServerName  $NC_SERVER_NAME
 
-<VirtualHost *:443>
-	DocumentRoot $document_root
-	ServerName $NC_SERVER_NAME
-	SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
-	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+  <Directory $document_root>
+    Require all granted
+    AllowOverride All
+    Options FollowSymLinks MultiViews
 
-	<Directory $document_root/>
-		Require all granted
-		AllowOverride All
-		Options FollowSymLinks MultiViews
-
-		<IfModule mod_dav.c>
-			Dav off
-		</IfModule>
-	</Directory>
-	<IfModule mod_headers.c>
-		Header always set Strict-Transport-Security \"max-age=15552000; includeSubDomains\"
-	</IfModule>
- </VirtualHost>
-" >> /etc/apache2/sites-available/NextCloud.conf
+    <IfModule mod_dav.c>
+      Dav off
+    </IfModule>
+  </Directory>
+</VirtualHost>" >> /etc/apache2/sites-available/NextCloud.conf
 
 # Enable the new site
 a2ensite NextCloud.conf
