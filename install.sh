@@ -152,7 +152,8 @@ echo -e "${GREEN}Creating startup script${DEFAULT_COLOUR}"
 
 pushd /usr/local/bin
 touch startup.sh
-echo "service mariadb start
+echo "#!/bin/bash
+service mariadb start
 service apache2 start
 sleep infinity" >> startup.sh
 chmod u+x startup.sh
