@@ -21,6 +21,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # TLS certificates
       - ./certs:/certs:ro
+      # Config files
+      - ./traefik-config:/config:ro
 
     command:
       #Static entry points defined as commandline arguments
@@ -38,7 +40,7 @@ services:
       - "--entrypoints.websecure.http.tls=true"
 
       # Attach the static config for the tls certificates
-      - "--providers.file.filename=tls.yml"
+      - "--providers.file.filename=/config/tls.yml"
 
       # Providers
 
@@ -72,19 +74,61 @@ services:
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$apr1$$nbMB5roi$$LU4ZrVLquHE9mZ9428IDd1"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
 
+# ---------------------------------------------------------------------------------------------------------------------- #
+
   nextcloud:
-    image: nc-test:http
+    image: mynextcloud:10.31
     container_name: nextcloud
     restart: unless-stopped
     networks:
       - proxy
       - backend
+    
+    volumes:
+      # User files
+      - ${NC_DATA_LOCATION}:/var/www/nextcloud/data:Z
+      # Site theme files
+      - ${NC_THEMES_LOCATION}:/var/www/nextcloud/themes:Z
+      # Nextcloud config files
+      - ${NC_CONFIG_LOCATION}:/var/www/nextcloud/config:Z
+
+    expose:
+      - 80
+
+    depends_on:
+      - mariadb
 
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextcloud.rule=Host(`cloud.localhost`)"
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
       - "traefik.http.routers.nextcloud.tls=true"
+
+# ---------------------------------------------------------------------------------------------------------------------- #
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb
+    restart: always
+    
+    expose: 
+      - 3306
+    
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    
+    environment:
+      MARIADB_ROOT_PASSWORD: p@ssw0rd
+
+    volumes:
+      - ${DB_LOCATION}:/var/lib/mysql:Z
+
+    networks: 
+      - backend
 
 networks:
   proxy:
