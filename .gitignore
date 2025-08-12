@@ -1,2 +1,11 @@
 .env
 certs/
+
+# Where the nextcloud volumes sit during development
+nextcloud-volumes/
+
+# Temporary file holding the password hash of the traefik dashboard
+traefik-password
+
+#File for passing environment variable to docker during development
+runtime.env
