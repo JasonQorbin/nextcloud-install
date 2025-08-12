@@ -126,6 +126,8 @@ services:
 
     volumes:
       - ${DB_LOCATION}:/var/lib/mysql:Z
+      # Custom config file with recommended setting for nextcloud
+      - ./mariadb-cnf.d:/etc/mysql/conf.d:ro
 
     networks: 
       - backend
