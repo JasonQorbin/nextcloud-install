@@ -1,15 +1,6 @@
 #!/bin/bash
-
 # Load environment variables from .env file only if the file exists
 [ ! -f .env ] || export $(grep -v '^#' .env | xargs)
-
-if [[ -z "${DB_LOCATION}" ]]; then
-    echo "Database location not specified. Using the mariadb default"
-    use_default_db_location=true
-else 
-    use_default_db_location=false
-    NC_DB_LOCATION="${DB_LOCATION}"
-fi
 
 # SERVER_NAME and DOWNLOAD_LINK are required variables. Exit if they are not present.
 if [[ -z "${SERVER_NAME}" ]]; then
@@ -25,10 +16,6 @@ fi
 NC_SERVER_NAME="${SERVER_NAME}"
 NC_DOWNLOAD_LINK="${DOWNLOAD_LINK}"
 
-
-
-# Note: Run this script with sudo privileges
-
 # Setting up variables:
 file_name=$(basename $NC_DOWNLOAD_LINK)
 document_root=/var/www/nextcloud
@@ -41,7 +28,7 @@ echo -e "${GREEN}Updating system${DEFAULT_COLOUR}"
 apt-get update -y && apt-get upgrade -y
 apt-get install -y nano wget
 
-# Install tzdata and set timezone so that the maria-db installation doesn't get interrupted.
+# Install tzdata and set timezone so that the installation doesn't get interrupted.
 # If the TIME_ZONE environment variable has not been set then use UCT as the default.
 if [[ -z "${TIME_ZONE}" ]]; then
     TIME_ZONE="UCT"
@@ -50,21 +37,6 @@ fi
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends tzdata
 
 timedatectl set-timezone ${TIME_ZONE}
-
-echo -e "${GREEN}Installing Mariadb${DEFAULT_COLOUR}"
-apt-get install -y mariadb-server
-
-if [ $use_default_db_location = false ]; then
-    echo -e "${GREEN}Configuring database location${DEFAULT_COLOUR}"
-    service mariadb stop
-    mkdir $NC_DB_LOCATION
-    cp -r /var/lib/mysql/* $NC_DB_LOCATION
-    chown -R mysql:mysql $NC_DB_LOCATION
-    echo "" >> /etc/mysql/mariadb.cnf
-    echo "[server]" >> /etc/mysql/mariadb.cnf
-    echo "datadir = $NC_DB_LOCATION" >> /etc/mysql/mariadb.cnf
-    service mariadb start
-fi
 
 echo -e "${GREEN}Installing PHP and required modules${DEFAULT_COLOUR}"
 apt-get install -y php php-xml php-curl php-gd php-json php-mbstring php-zip php-mysql
@@ -90,18 +62,18 @@ service apache2 stop
 touch /etc/apache2/sites-available/NextCloud.conf
 
 echo "<VirtualHost *:80>
-  DocumentRoot $document_root
-  ServerName  $NC_SERVER_NAME
+        ServerName ${NC_SERVER_NAME}
+        DocumentRoot /var/www/nextcloud/
 
-  <Directory $document_root>
-    Require all granted
-    AllowOverride All
-    Options FollowSymLinks MultiViews
+        <Directory /var/www/nextcloud/>
+                Require all granted
+                AllowOverride All
+                Options FollowSymLinks MultiViews
 
-    <IfModule mod_dav.c>
-      Dav off
-    </IfModule>
-  </Directory>
+                <IfModule mod_dav.c>
+                        Dav off
+                </IfModule>
+        </Directory>
 </VirtualHost>" >> /etc/apache2/sites-available/NextCloud.conf
 
 # Enable the new site
@@ -129,9 +101,6 @@ echo -e "${GREEN}Unpacking NextCloud archive${DEFAULT_COLOUR}"
 tar -xf $file_name -C ./nc
 
 echo -e "${GREEN}Installing NextCloud${DEFAULT_COLOUR}"
-# Delete the theme and config folders because we will use our own
-rm -rf ./nextcloud/themes
-rm -rf ./nextcloud/config
 
 # Move the extracted folder to the web server root
 mv ./nc/nextcloud/ /var/www/
@@ -153,7 +122,6 @@ echo -e "${GREEN}Creating startup script${DEFAULT_COLOUR}"
 pushd /usr/local/bin
 touch startup.sh
 echo "#!/bin/bash
-service mariadb start
 service apache2 start
 sleep infinity" >> startup.sh
 chmod u+x startup.sh
