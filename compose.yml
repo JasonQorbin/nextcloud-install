@@ -90,13 +90,14 @@ services:
       # Site theme files
       - ${NC_THEMES_LOCATION}:/var/www/nextcloud/themes:Z
       # Nextcloud config files
-      - ${NC_CONFIG_LOCATION}:/var/www/nextcloud/config:Z
+      #- ${NC_CONFIG_LOCATION}:/var/www/nextcloud/config:Z
 
     expose:
       - 80
+      - 443
 
     depends_on:
-      - mariadb
+      - db
 
     labels:
       - "traefik.enable=true"
@@ -106,7 +107,7 @@ services:
 
 # ---------------------------------------------------------------------------------------------------------------------- #
 
-  mariadb:
+  db:
     image: mariadb:10.11
     container_name: mariadb
     restart: always
