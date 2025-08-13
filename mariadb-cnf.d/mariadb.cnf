@@ -1,7 +1,7 @@
 # MariaDB configuration recommended by Nextcloud 
 
 [mariadb]
-skip_name_resolve = 1
+skip_name_resolve = 0
 innodb_buffer_pool_size = 128M
 innodb_buffer_pool_instances = 1
 innodb_flush_log_at_trx_commit = 2
