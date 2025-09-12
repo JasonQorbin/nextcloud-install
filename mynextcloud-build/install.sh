@@ -68,13 +68,28 @@ apt-get install -y apache2
 echo -e "${GREEN}Create site configuration for Nextcloud${DEFAULT_COLOUR}"
 service apache2 stop
 # Create a site configuration from Nextcloud that uses the default self-signed certificate.
-touch /etc/apache2/sites-available/NextCloud.conf
+nextcloud_config=/etc/apache2/sites-available/Nextcloud.conf
+touch $nextcloud_config
 
-echo "<VirtualHost *:80>
-        ServerName ${NC_SERVER_NAME}
-        DocumentRoot /var/www/nextcloud/
+echo "LoadModule ssl_module modules/mod_ssl.so
 
-        <Directory /var/www/nextcloud/>
+<VirtualHost *:80>
+   ServerName ${SERVER_NAME}
+   Redirect permanent / https://${SERVER_NAME}/
+</VirtualHost>
+
+<VirtualHost *:443>
+        ServerName ${SERVER_NAME}
+        DocumentRoot $document_root
+        SSLEngine on
+        SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
+        SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+        <IfModule mod_headers.c>
+                Header always set Strict-Transport-Security \"max-age=15552000; includeSubDomains\"
+        </IfModule>
+
+        <Directory $document_root>
                 Require all granted
                 AllowOverride All
                 Options FollowSymLinks MultiViews
@@ -83,7 +98,8 @@ echo "<VirtualHost *:80>
                         Dav off
                 </IfModule>
         </Directory>
-</VirtualHost>" >> /etc/apache2/sites-available/NextCloud.conf
+
+</VirtualHost>" >> $nextcloud_config
 
 # Enable the new site
 a2ensite NextCloud.conf
