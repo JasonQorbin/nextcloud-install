@@ -121,25 +121,6 @@ echo -e "${GREEN}Setting up Nextcloud cron jobs${DEFAULT_COLOUR}"
 apt install cron -y
 (crontab -u www-data -l 2>/dev/null; echo "*/5  *  *  *  * php -f /var/www/nextcloud/cron.php") | crontab -u www-data -
 
-echo -e "${GREEN}Unpacking NextCloud archive${DEFAULT_COLOUR}"
-tar -xf $file_name -C ./nc
-
-echo -e "${GREEN}Installing NextCloud${DEFAULT_COLOUR}"
-
-# Move the extracted folder to the web server root
-mv ./nc/nextcloud/ /var/www/
-
-#change owner to www-data
-chown -R www-data:www-data $document_root
-
-service apache2 start
-
-
-echo -e "${GREEN}Cleaning up...${DEFAULT_COLOUR}"
-rm -r nc
-
-# Remember to delete downloaded files
-rm $file_name
 
 echo -e "${GREEN}Creating startup script${DEFAULT_COLOUR}"
 
