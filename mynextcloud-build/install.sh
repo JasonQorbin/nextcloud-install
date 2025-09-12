@@ -102,7 +102,7 @@ echo "LoadModule ssl_module modules/mod_ssl.so
 </VirtualHost>" >> $nextcloud_config
 
 # Enable the new site
-a2ensite NextCloud.conf
+a2ensite Nextcloud.conf
 
 # Disable the default site
 a2dissite 000-default.conf
