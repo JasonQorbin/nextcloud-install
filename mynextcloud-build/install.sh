@@ -115,12 +115,11 @@ a2enmod dir
 a2enmod mime
 a2enmod ssl
 
-# Install NextCloud
+# Nextcloud crob jobs
 
-echo -e "${GREEN}Downloading NextCloud${DEFAULT_COLOUR}"
-pushd /tmp
-wget $NC_DOWNLOAD_LINK
-mkdir nc
+echo -e "${GREEN}Setting up Nextcloud cron jobs${DEFAULT_COLOUR}"
+apt install cron -y
+(crontab -u www-data -l 2>/dev/null; echo "*/5  *  *  *  * php -f /var/www/nextcloud/cron.php") | crontab -u www-data -
 
 echo -e "${GREEN}Unpacking NextCloud archive${DEFAULT_COLOUR}"
 tar -xf $file_name -C ./nc
