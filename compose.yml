@@ -23,9 +23,9 @@ services:
       # Docker unix socket so traefik can monitor changes in the docker containers
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # TLS certificates
-      - ./certs:/certs:ro
+      # - ./certs:/certs:ro
       # Config files
-      - ./traefik-config:/config:ro
+      # - ./traefik-config:/config:ro
 
     command:
       #Static entry points defined as commandline arguments
@@ -52,7 +52,7 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=proxy"
 
-      # API & Dashboard:
+
       - "--api.dashboard=true"
       - "--api.insecure=false"
       
@@ -96,8 +96,10 @@ services:
       - 443
 
     depends_on:
-      - db
-      - traefik
+      db:
+        condition: service_healthy
+      traefik:
+        condition: service_started
 
     labels:
       - "traefik.enable=true"
