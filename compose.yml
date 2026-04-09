@@ -1,6 +1,9 @@
 services:
   traefik:
-    image: traefik:v3.5
+    image: traefik:v3.6
+    pull_policy: if_not_present
+    environment:
+      - DOCKER_API_VERSION=1.54
     container_name: traefik
     restart: unless-stopped
     security_opt:
@@ -78,6 +81,7 @@ services:
 
   nextcloud:
     image: nextcloudrunner:v1
+    pull_policy: never
     container_name: nextcloud
     restart: unless-stopped
     networks:
@@ -93,17 +97,23 @@ services:
 
     depends_on:
       - db
+      - traefik
 
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextcloud.rule=Host(`cloud.localhost`)"
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
-      - "traefik.http.routers.nextcloud.tls=true"
+      # - "traefik.http.routers.nextcloud.tls=true"
+      # - "traefik.http.services.nextcloud.loadbalancer.server.port=443"
+      # - "traefik.http.services.nextcloud.loadbalancer.server.scheme=https"
+      # - "traefik.http.routers.nextcloud.service=nextcloud"
+
 
 # ---------------------------------------------------------------------------------------------------------------------- #
 
   db:
     image: mariadb:10.11
+    pull_policy: if_not_present
     container_name: mariadb
     restart: always
     
@@ -118,7 +128,7 @@ services:
       retries: 3
     
     environment:
-      MARIADB_ROOT_PASSWORD: p@ssw0rd
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
 
     volumes:
       - ${DB_LOCATION}:/var/lib/mysql:Z
