@@ -89,7 +89,8 @@ services:
       - backend
     
     volumes:
-      - ${NC_VOLUME_LOCATION}:/var/www/nextcloud:Z
+      - ${NC_VOLUME_LOCATION}:/var/www/nextcloud
+      - ${NC_DATA_LOCATION}:/var/nextcloud/data
 
     expose:
       - 80
