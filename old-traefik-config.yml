@@ -1,0 +1,80 @@
+  traefik:
+    image: traefik:v3.6
+    pull_policy: if_not_present
+    environment:
+      - DOCKER_API_VERSION=1.54
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    networks:
+      - proxy
+    
+    ports:
+      # Web ports
+      - "80:80"
+      - "443:443"
+      # Traefik dashboard port
+      - "8080:8080"
+    
+    volumes:
+      # Docker unix socket so traefik can monitor changes in the docker containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # TLS certificates
+      # - ./certs:/certs:ro
+      # Config files
+      # - ./traefik-config:/config:ro
+
+    command:
+      #Static entry points defined as commandline arguments
+      
+      #Define an entrypoint on port 80 (http). 
+      #Then define a permanent redirect (301 error code) sending requests to the websecure 
+      #entrypoint, using the https protocol.
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      
+      #Define the websecure entrypoint on port 443 (https).
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+
+      # Attach the static config for the tls certificates
+      - "--providers.file.filename=/config/tls.yml"
+
+      # Providers
+
+      # Docker:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+
+
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      
+      # Logging:
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--metrics.prometheus=true"
+
+    # Dynamic configuration via labels
+    labels:
+      # Enable self-routing
+      - "traefik.enable=true"
+
+      # Dashboard router
+      # Take https requests to dashboard.docker.localhost and send them to the internal api service.
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.docker.localhost`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      
+      # Basic-auth middleware for authentication to the dashboard
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$apr1$$nbMB5roi$$LU4ZrVLquHE9mZ9428IDd1"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
+
+# ---------------------------------------------------------------------------------------------------------------------- #
+
