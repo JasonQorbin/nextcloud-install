@@ -27,7 +27,7 @@
 - The rsync command must be done with the `-a` (archive) metaflag that sets various other flags to ensure that the file
   ownership and permissions remain intact.
 - Need to deal with the environment variable to set a development mode. The development mode would override the logic
-  that checks for a clean install or an upgradable installation. If we are in deelopment mode we should just use the
+  that checks for a clean install or an upgradable installation. If we are in development mode we should just use the
   install in the mounted volume and not overwrite it with the the baked in version. Dev mode should be the default. That
   means that to test the upgrading logic we either need to force the container to production mode or we need to have a
   second test variable to allow it it to happen in Dev mode. The logic would then be:
