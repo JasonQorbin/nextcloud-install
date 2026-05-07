@@ -9,8 +9,11 @@ services:
       - backend
     
     volumes:
-      - ${NC_VOLUME_LOCATION}:/var/www/nextcloud
-      - ${NC_DATA_LOCATION}:/var/nextcloud/data
+      - nextcloud_test_install:/var/www/nextcloud
+      - nextcloud_test_data:/var/nextcloud/data
+      - nextcloud_test_config:/var/www/nextcloud/config
+      - nextcloud_test_themes:/var/www/nextcloud/themes
+      - nextcloud_test_apps:/var/www/nextcloud/apps
 
     ports:
       # Web ports
@@ -63,3 +66,15 @@ services:
 networks:
   backend:
     name: backend
+
+volumes:
+  nextcloud_test_data:
+    driver: local
+  nextcloud_test_install:
+    driver: local
+  nextcloud_test_config:
+    driver: local
+  nextcloud_test_themes:
+    driver: local
+  nextcloud_test_apps:
+    driver: local

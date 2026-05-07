@@ -26,6 +26,7 @@ DEFAULT_COLOUR='\033[0m'
 
 echo -e "${GREEN}Updating system${DEFAULT_COLOUR}"
 apt-get update -y
+apt-get install rsync -y
 apt-get install -y software-properties-common
 add-apt-repository ppa:ondrej/php -y
 add-apt-repository ppa:ondrej/apache2 -y
@@ -42,6 +43,7 @@ DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends tzdata
 
 timedatectl set-timezone ${TIME_ZONE}
 
+# Install PHP
 echo -e "${GREEN}Installing PHP and required modules${DEFAULT_COLOUR}"
 apt-get install -y php8.2 php8.2-xml php8.2-curl php8.2-gd php-json php8.2-mbstring php8.2-zip php8.2-mysql
 
@@ -65,11 +67,26 @@ apt-get install -y libreoffice
 echo -e "${GREEN}Installing Apache2${DEFAULT_COLOUR}"
 apt-get install -y apache2
 
+# Bake in a default copy of Nextcloud
+embeddedInstallLocation=/usr/src/nextcloud
+mkdir -p $embeddedInstallLocation
+mkdir /tmp/install
+echo -e "${GREEN}Downloading Nextcloud${DEFAULT_COLOUR}"
+wget -P /tmp/install ${DOWNLOAD_LINK}
+echo -e "${GREEN}Extracting Nextcloud${DEFAULT_COLOUR}"
+tar -xjf /tmp/install/*.tar.bz2 -C $embeddedInstallLocation --strip-components=1
+chown -R 33:33 $embeddedInstallLocation
+rm -Rf /tmp/install
+
+
 echo -e "${GREEN}Create site configuration for Nextcloud${DEFAULT_COLOUR}"
 service apache2 stop
 # Create a site configuration from Nextcloud that uses the default self-signed certificate.
+http_config=/etc/apache2/sites-available/nc_http.conf
+https_config=/etc/apache2/sites-available/nc_https.conf
 nextcloud_config=/etc/apache2/sites-available/Nextcloud.conf
-touch $nextcloud_config
+touch $http_config
+touch $https_config
 
 echo "LoadModule ssl_module modules/mod_ssl.so
 
@@ -99,7 +116,24 @@ echo "LoadModule ssl_module modules/mod_ssl.so
                 </IfModule>
         </Directory>
 
-</VirtualHost>" >> $nextcloud_config
+</VirtualHost>" >> $https_config
+
+echo "<VirtualHost *:80>
+  DocumentRoot $document_root
+  ServerName  ${SERVER_NAME}
+  <Directory $document_root>
+    Require all granted
+    AllowOverride All
+    Options FollowSymLinks MultiViews
+
+    <IfModule mod_dav.c>
+      Dav off
+    </IfModule>
+  </Directory>
+</VirtualHost>" >> $http_config
+
+# Make a soft link to the active configuration. This link can be switched around for testing.
+ln -s $http_conf $nextcloud_config
 
 # Enable the new site
 a2ensite Nextcloud.conf
@@ -121,15 +155,10 @@ echo -e "${GREEN}Setting up Nextcloud cron jobs${DEFAULT_COLOUR}"
 apt install cron -y
 (crontab -u www-data -l 2>/dev/null; echo "*/5  *  *  *  * php -f /var/www/nextcloud/cron.php") | crontab -u www-data -
 
-
-echo -e "${GREEN}Creating startup script${DEFAULT_COLOUR}"
-
+mv startup.sh /usr/local/bin/
 pushd /usr/local/bin
-touch startup.sh
-echo "#!/bin/bash
-service apache2 start
-sleep infinity" >> startup.sh
 chmod u+x startup.sh
 chmod o+x startup.sh
+popd
 
 echo -e "${GREEN}Done${DEFAULT_COLOUR}"
