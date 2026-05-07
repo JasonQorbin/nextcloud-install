@@ -30,7 +30,7 @@ apt-get install rsync -y
 apt-get install -y software-properties-common
 add-apt-repository ppa:ondrej/php -y
 add-apt-repository ppa:ondrej/apache2 -y
-apt-get install -y nano wget
+apt-get install -y nano wget bzip2
 apt-get upgrade -y
 
 # Install tzdata and set timezone so that the installation doesn't get interrupted.
