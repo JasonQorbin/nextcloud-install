@@ -46,9 +46,7 @@ nextcloud_config=/etc/apache2/sites-available/Nextcloud.conf
 touch $http_config
 touch $https_config
 
-echo "LoadModule ssl_module modules/mod_ssl.so
-
-<VirtualHost *:80>
+echo "<VirtualHost *:80>
    ServerName ${SERVER_NAME}
    Redirect permanent / https://${SERVER_NAME}/
 </VirtualHost>
@@ -74,7 +72,7 @@ echo "LoadModule ssl_module modules/mod_ssl.so
                 </IfModule>
         </Directory>
 
-</VirtualHost>" >> $https_config
+</VirtualHost>" > $https_config
 
 echo "<VirtualHost *:80>
   DocumentRoot $document_root
@@ -88,10 +86,15 @@ echo "<VirtualHost *:80>
       Dav off
     </IfModule>
   </Directory>
-</VirtualHost>" >> $http_config
+</VirtualHost>" > $http_config
 
 # Make a soft link to the active configuration. This link can be switched around for testing.
-ln -s $http_conf $nextcloud_config
+echo "${GREEN}Link active configuration${DEFAULT_COLOUR}"
+echo "Source file: ${http_config}"
+echo "Target link: ${nextcloud_config}"
+echo "Command: ln -s ${http_config} ${nextcloud_config}"
+
+ln -s $http_config $nextcloud_config
 
 # Enable the new site
 a2ensite Nextcloud.conf
