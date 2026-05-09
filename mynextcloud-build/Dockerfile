@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu-upgraded:24.04
 
 WORKDIR /tmp
 COPY . ./
