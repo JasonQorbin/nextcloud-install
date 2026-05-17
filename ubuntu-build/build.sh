@@ -30,12 +30,24 @@ apt-get install -y php8.2 php8.2-xml php8.2-curl php8.2-gd php-json php8.2-mbstr
 echo -e "${GREEN}Installing recommended PHP modules${DEFAULT_COLOUR}"
 apt-get install -y php8.2-bz2 php8.2-intl php8.2-smbclient php8.2-bcmath php8.2-gmp php8.2-redis php8.2-imagick
 
-# Change the memory limit in the configuration file per Nextcloud recommendations
-sed -i 's/.*memory_limit.*/memory_limit = 512M/' /etc/php/8.2/apache2/php.ini
+# Configure PHP settings per Nextcloud recommendations
+PHP_INI="/etc/php/8.2/apache2/php.ini"
+# Change the memory limit in the configuration file
+sed -i 's/.*memory_limit.*/memory_limit = 512M/' $PHP_INI
 # Disable PHP output buffering per nextcloud recommendations
-sed -i 's/.*output_buffering.*/output_buffering = off/' /etc/php/8.2/apache2/php.ini
+sed -i 's/.*output_buffering.*/output_buffering = off/' $PHP_INI
 # Set the timezone in the PHP config in case it cannot read the system time zone. 
-sed -i "s|;date.timezone =|date.timezone = ${TZ}|" /etc/php/8.2/apache2/php.ini
+sed -i 's|;date.timezone =|date.timezone = ${TZ}|' $PHP_INI
+sed -i 's/;opcache.enable=1/opcache.enable=1/g' $PHP_INI
+sed -i 's/;opcache.enable_cli=0/opcache.enable_cli=1/g' $PHP_INI
+sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=16/g' $PHP_INI
+# Set the number of PHP scripts that can be cached in memory to 10000
+sed -i 's/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=10000/g' $PHP_INI
+# Set the amount of memory for caching compiled bytecode 128MB
+sed -i 's/;opcache.memory_consumption=128/opcache.memory_consumption=128/g' $PHP_INI
+# Set compiled bytecode to retain comments. Essential to allow the database abstraction layer (Doctrine) to parse metadata annotations
+sed -i 's/;opcache.save_comments=1/opcache.save_comments=1/g' $PHP_INI
+sed -i 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g' $PHP_INI
 
 # Install ffmpeg to allow for meadia playback. This is a large package.
 echo -e "${GREEN}Installing ffmpeg${DEFAULT_COLOUR}"
