@@ -14,11 +14,26 @@
 SET @db_name = '${NC_DB_NAME}';
 SET @user_name = '${NC_DB_USER_NAME}';
 SET @user_password = '${NC_DB_PASSWORD}';
+SET @hostname = 'nextcloud';
+SET @userString = CONCAT(QUOTE(@user_name),'@',QUOTE(@hostname));
 
-CREATE DATABASE IF NOT EXISTS @db_name;
+SET @sql = CONCAT('CREATE DATABASE IF NOT EXISTS `', @db_name,'`');
 
-CREATE USER @user_name@'nextcloud' IDENTIFIED BY @user_password;
+PREPARE tblStmt FROM @sql;
+EXECUTE tblStmt;
+DEALLOCATE PREPARE tblStmt;
 
-GRANT ALL PRIVILEGES ON @db_name.* TO @user_name@'localhost';
+SET @sql = CONCAT('CREATE USER ', @userString,' IDENTIFIED BY ',QUOTE(@user_password));
+
+PREPARE userStmt FROM @sql;
+EXECUTE userStmt;
+DEALLOCATE PREPARE userStmt;
+
+
+SET @sql = CONCAT('GRANT ALL PRIVILEGES ON `', @db_name, '`.* TO ', @userString);
+
+PREPARE privStmt FROM @sql;
+EXECUTE privStmt;
+DEALLOCATE PREPARE privStmt;
 
 FLUSH PRIVILEGES;
