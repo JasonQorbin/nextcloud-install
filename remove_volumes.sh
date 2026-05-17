@@ -1,4 +1,5 @@
 #! /bin/bash
+echo "Removing named volumes used by the application:"
 docker volume rm nextcloud-upgrade_nextcloud_test_apps
 docker volume rm nextcloud-upgrade_nextcloud_test_config
 docker volume rm nextcloud-upgrade_nextcloud_test_themes
