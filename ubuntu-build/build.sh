@@ -25,13 +25,13 @@ apt-get install -y tzdata
 
 # Install PHP
 echo -e "${GREEN}Installing PHP and required modules${DEFAULT_COLOUR}"
-apt-get install -y php8.2 php8.2-xml php8.2-curl php8.2-gd php-json php8.2-mbstring php8.2-zip php8.2-mysql
+apt-get install -y php8.3 php8.3-xml php8.3-curl php8.3-gd php-json php8.3-mbstring php8.3-zip php8.3-mysql
 
 echo -e "${GREEN}Installing recommended PHP modules${DEFAULT_COLOUR}"
-apt-get install -y php8.2-bz2 php8.2-intl php8.2-smbclient php8.2-bcmath php8.2-gmp php8.2-redis php8.2-imagick
+apt-get install -y php8.3-bz2 php8.3-intl php8.3-smbclient php8.3-bcmath php8.3-gmp php-redis php-imagick
 
 # Configure PHP settings per Nextcloud recommendations
-PHP_INI="/etc/php/8.2/apache2/php.ini"
+PHP_INI="/etc/php/8.3/apache2/php.ini"
 # Change the memory limit in the configuration file
 sed -i 's/.*memory_limit.*/memory_limit = 512M/' $PHP_INI
 # Disable PHP output buffering per nextcloud recommendations

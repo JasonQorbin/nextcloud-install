@@ -114,7 +114,7 @@ a2enmod ssl
 
 echo -e "${GREEN}Setting up Nextcloud cron jobs${DEFAULT_COLOUR}"
 apt install cron -y
-(crontab -u www-data -l 2>/dev/null; echo "*/5  *  *  *  * /usr/bin/php8.2 -f /var/www/nextcloud/cron.php") | crontab -u www-data -
+(crontab -u www-data -l 2>/dev/null; echo "*/5  *  *  *  * /usr/bin/php8.3 -f /var/www/nextcloud/cron.php") | crontab -u www-data -
 
 mv startup.sh /usr/local/bin/
 pushd /usr/local/bin
