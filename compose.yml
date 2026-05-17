@@ -54,9 +54,12 @@ services:
     
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${NC_DB_NAME}
+      MYSQL_USER: ${NC_DB_USER}
+      MYSQL_PASSWORD: ${NC_DB_PASSWORD}
 
     volumes:
-      - ${DB_LOCATION}:/var/lib/mysql:Z
+      - database_volume:/var/lib/mysql:Z
       # Custom config file with recommended setting for nextcloud
       - ./mariadb-cnf.d:/etc/mysql/conf.d:ro
 
@@ -77,4 +80,6 @@ volumes:
   nextcloud_test_themes:
     driver: local
   nextcloud_test_apps:
+    driver: local
+  database_volume:
     driver: local
