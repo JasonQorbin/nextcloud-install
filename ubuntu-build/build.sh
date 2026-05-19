@@ -28,7 +28,7 @@ echo -e "${GREEN}Installing PHP and required modules${DEFAULT_COLOUR}"
 apt-get install -y php8.3 php8.3-xml php8.3-curl php8.3-gd php-json php8.3-mbstring php8.3-zip php8.3-mysql
 
 echo -e "${GREEN}Installing recommended PHP modules${DEFAULT_COLOUR}"
-apt-get install -y php8.3-bz2 php8.3-intl php8.3-smbclient php8.3-bcmath php8.3-gmp php-redis php-imagick
+apt-get install -y php8.3-bz2 php8.3-intl php8.3-smbclient php8.3-bcmath php8.3-gmp php8.3-redis php-imagick
 
 # Configure PHP settings per Nextcloud recommendations
 PHP_INI="/etc/php/8.3/apache2/php.ini"
