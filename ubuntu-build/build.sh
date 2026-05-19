@@ -43,7 +43,8 @@ apt-get install -y \
     php8.3-bcmath \
     php8.3-gmp \
     php8.3-redis \
-    php8.3-imagick
+    php8.3-imagick \
+    libmagickcore-6.q16-6-extra
 
 # Configure PHP settings per Nextcloud recommendations
 PHP_INI="/etc/php/8.3/apache2/php.ini"
