@@ -45,3 +45,17 @@
         }    
     } 
 ```
+
+
+# Post install commands
+
+```bash
+php occ config:system:set redis --value='{"host":"redis", "port":"6379"}' --type=json
+php occ config:system:set memcache.local --value="\OC\Memcache\Redis"
+php occ config:system:set memcache.locking --value="\OC\Memcache\Redis"
+
+php occ config:system:set maintenance_window_start --value=21 --type=integer
+php occ maintenance:repair --include-expensive
+
+php occ config:system:set server_id --value="vps-node-01"
+```
