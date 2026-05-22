@@ -1,6 +1,6 @@
 services:
   nextcloud:
-    image: nextcloudrunner:v1
+    image: nextcloudrunner:33.0.3
     pull_policy: never
     container_name: nextcloud
     restart: unless-stopped
@@ -101,8 +101,16 @@ services:
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      
+      # Define entrypoints
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      
+      # Add permanent redirect http to https  
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+
     ports:
       - "80:80"
       - "443:443"
