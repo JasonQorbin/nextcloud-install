@@ -7,6 +7,7 @@ services:
 
     networks:
       - backend
+      - frontend
     
     volumes:
       - nextcloud_test_install:/var/www/nextcloud
@@ -15,23 +16,33 @@ services:
       - nextcloud_test_themes:/var/www/nextcloud/themes
       - nextcloud_test_apps:/var/www/nextcloud/apps
 
-    ports:
-      # Web ports
-      - "80:80"
-      - "443:443"
-
     depends_on:
       db:
         condition: service_healthy
 
-    # labels:
-      # - "traefik.enable=true"
-      # - "traefik.http.routers.nextcloud.rule=Host(`cloud.localhost`)"
-      # - "traefik.http.routers.nextcloud.entrypoints=websecure"
-      # - "traefik.http.routers.nextcloud.tls=true"
-      # - "traefik.http.services.nextcloud.loadbalancer.server.port=443"
-      # - "traefik.http.services.nextcloud.loadbalancer.server.scheme=https"
-      # - "traefik.http.routers.nextcloud.service=nextcloud"
+    labels:
+      - "traefik.enable=true"
+      # Entrypoint and host routing
+      - "traefik.http.routers.nextcloud.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud.rule=Host(`cloud.localhost`)"
+      - "traefik.http.routers.nextcloud.tls=true"
+
+      # Security headers middleware
+      - "traefik.http.routers.nextcloud.middlewares=nextcloud-headers"
+
+      # HSTS configuration fields
+      - "traefik.http.middlewares.nextcloud-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.nextcloud-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.nextcloud-headers.headers.stsPreload=true"
+
+      # Routing definitions
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+
+      # Make traefik route traffic to the interface on the frontend network
+      - "traefik.docker.network=frontend"
+
+    extra_hosts:
+      - "cloud.localhost:host-gateway"
 
 
 # ---------------------------------------------------------------------------------------------------------------------- #
@@ -81,9 +92,34 @@ services:
 
 # --------------------------------------------------------------------------------------------------------------------#
 
+  # Traefik as a public-facing reverse-proxy.
+  
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - frontend
+
+# --------------------------------------------------------------------------------------------------------------------#
+
 networks:
   backend:
     name: backend
+    driver: bridge
+  frontend:
+    name: frontend
+    driver: bridge
 
 volumes:
   nextcloud_test_data:
