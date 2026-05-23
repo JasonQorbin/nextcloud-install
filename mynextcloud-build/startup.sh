@@ -57,7 +57,6 @@ elif [ "$(printf '%s\n%s' "$VOL_VER" "$IMG_VER" | sort -V | head -n1)" = "$VOL_V
     rsync -a --delete --stats \
         --exclude='/data' \
         --exclude='/config' \
-        --exclude='/apps' \
         --exclude='/themes' \
         "$SOURCE_DIR/" "$TARGET_DIR/"
     echo "Synchronization complete"

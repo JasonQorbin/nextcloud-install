@@ -14,7 +14,6 @@ services:
       - nextcloud_test_data:/var/nextcloud/data
       - nextcloud_test_config:/var/www/nextcloud/config
       - nextcloud_test_themes:/var/www/nextcloud/themes
-      - nextcloud_test_apps:/var/www/nextcloud/apps
 
     depends_on:
       db:
@@ -137,8 +136,6 @@ volumes:
   nextcloud_test_config:
     driver: local
   nextcloud_test_themes:
-    driver: local
-  nextcloud_test_apps:
     driver: local
   database_volume:
     driver: local
