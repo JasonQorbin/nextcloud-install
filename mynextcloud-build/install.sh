@@ -41,63 +41,34 @@ echo -e "${GREEN}Create site configuration for Nextcloud${DEFAULT_COLOUR}"
 service apache2 stop
 # Create a site configuration from Nextcloud that uses the default self-signed certificate.
 http_config=/etc/apache2/sites-available/nc_http.conf
-https_config=/etc/apache2/sites-available/nc_https.conf
 nextcloud_config=/etc/apache2/sites-available/Nextcloud.conf
+conf_file=$(basename "$nextcloud_config")
 touch $http_config
-touch $https_config
 
 echo "<VirtualHost *:80>
-   ServerName ${SERVER_NAME}
-   Redirect permanent / https://${SERVER_NAME}/
-</VirtualHost>
+    DocumentRoot /var/www/nextcloud
+    ServerName localhost
 
-<VirtualHost *:443>
-        ServerName ${SERVER_NAME}
-        DocumentRoot $document_root
-        SSLEngine on
-        SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
-        SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+    # Accept the proxy's routing without complaining about host mismatches
+    ServerAlias *
 
-        <IfModule mod_headers.c>
-                Header always set Strict-Transport-Security \"max-age=15552000; includeSubDomains\"
+    <Directory /var/www/nextcloud/>
+        Options +FollowSymlinks
+        AllowOverride All
+        Require all granted
+
+        <IfModule mod_dav.c>
+            Dav off
         </IfModule>
+    </Directory>
 
-        <Directory $document_root>
-                Require all granted
-                AllowOverride All
-                Options FollowSymLinks MultiViews
-
-                <IfModule mod_dav.c>
-                        Dav off
-                </IfModule>
-        </Directory>
-
-</VirtualHost>" > $https_config
-
-echo "<VirtualHost *:80>
-  DocumentRoot $document_root
-  ServerName  ${SERVER_NAME}
-  <Directory $document_root>
-    Require all granted
-    AllowOverride All
-    Options FollowSymLinks MultiViews
-
-    <IfModule mod_dav.c>
-      Dav off
-    </IfModule>
-  </Directory>
-</VirtualHost>" > $http_config
-
-# Make a soft link to the active configuration. This link can be switched around for testing.
-echo "${GREEN}Link active configuration${DEFAULT_COLOUR}"
-echo "Source file: ${http_config}"
-echo "Target link: ${nextcloud_config}"
-echo "Command: ln -s ${http_config} ${nextcloud_config}"
-
-ln -s $http_config $nextcloud_config
+    # Logging profiles using standard stdout/stderr streams for Docker
+    ErrorLog /proc/self/fd/2
+    CustomLog /proc/self/fd/1 combined
+</VirtualHost>" > $nextcloud_config
 
 # Enable the new site
-a2ensite Nextcloud.conf
+a2ensite $conf_file
 
 # Disable the default site
 a2dissite 000-default.conf
