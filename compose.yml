@@ -78,7 +78,7 @@ services:
 
 # --------------------------------------------------------------------------------------------------------------------#
 
-  # Redis for caching. This is highly recommended by Nextcloud because it want you to set up in memory caching for:
+  # Redis for caching. This is highly recommended by Nextcloud because it wants you to set up in-memory caching for:
   # 1. Local cache (memcache.local) to cache single-user sessions and speed them up; and
   # 2. File Loccking Cache (memcache.locking) to prevent file corruption when multiple syncing operations happen simultaneously.
 
