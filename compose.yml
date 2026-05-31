@@ -23,7 +23,7 @@ services:
       - "traefik.enable=true"
       # Entrypoint and host routing
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
-      - "traefik.http.routers.nextcloud.rule=Host(`cloud.localhost`)"
+      - "traefik.http.routers.nextcloud.rule=Host(`${NC_HOSTNAME}`)"
       - "traefik.http.routers.nextcloud.tls=true"
 
       # Security headers middleware
