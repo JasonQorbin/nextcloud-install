@@ -1,6 +1,12 @@
 #! /bin/bash
 
+# Shortcut variables for coloured text
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+DEFAULT_COLOUR='\033[0m'
+
 echo -e "${GREEN}Updating system${DEFAULT_COLOUR}"
+
 apt-get update -y
 apt-get install rsync -y
 apt-get install -y software-properties-common
