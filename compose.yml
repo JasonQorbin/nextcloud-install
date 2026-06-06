@@ -40,6 +40,10 @@ services:
       # Make traefik route traffic to the interface on the frontend network
       - "traefik.docker.network=frontend"
 
+      # TLS certificate resolver
+      # the variable should be blank in development and "myresolver" in production
+      - "traefik.http.routers.nextcloud.tls.certresolver=${TRAEFIK_CERT_RESOLVER}"
+
     extra_hosts:
       - "cloud.localhost:host-gateway"
 
@@ -110,11 +114,22 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
 
+      # Let's Encrypt configuration
+      - "--certificatesresolvers.myresolver.acme.email=${LETS_ENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+
     ports:
       - "80:80"
       - "443:443"
+    
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Map the Docker socket so traefik can communicate with Docker.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Volume for storing TLS certificates from LetsEncrypt
+      - traefik_certificates:/letsencrypt
+    
     networks:
       - frontend
 
@@ -138,4 +153,6 @@ volumes:
   nextcloud_test_themes:
     driver: local
   database_volume:
+    driver: local
+  traefik_certificates:
     driver: local
