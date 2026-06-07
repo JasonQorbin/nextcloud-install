@@ -1,7 +1,11 @@
 #! /bin/bash
+
+directory_name=$(basename "$PWD")
+
 echo "Removing named volumes used by the application:"
-docker volume rm nextcloud-upgrade_nextcloud_test_config
-docker volume rm nextcloud-upgrade_nextcloud_test_themes
-docker volume rm nextcloud-upgrade_nextcloud_test_data
-docker volume rm nextcloud-upgrade_nextcloud_test_install
-docker volume rm nextcloud-upgrade_database_volume
+docker volume rm "${directory_name}_nextcloud_config"
+docker volume rm "${directory_name}_nextcloud_user_data"
+docker volume rm "${directory_name}_nextcloud_themes"
+docker volume rm "${directory_name}_nextcloud_install"
+docker volume rm "${directory_name}_maria_database_volume"
+echo "Done."

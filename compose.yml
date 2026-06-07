@@ -10,10 +10,10 @@ services:
       - frontend
     
     volumes:
-      - nextcloud_test_install:/var/www/nextcloud
-      - nextcloud_test_data:/var/nextcloud/data
-      - nextcloud_test_config:/var/www/nextcloud/config
-      - nextcloud_test_themes:/var/www/nextcloud/themes
+      - nextcloud_install:/var/www/nextcloud
+      - nextcloud_user_data:/var/nextcloud/data
+      - nextcloud_config:/var/www/nextcloud/config
+      - nextcloud_themes:/var/www/nextcloud/themes
 
     depends_on:
       db:
@@ -73,7 +73,7 @@ services:
       MYSQL_PASSWORD: ${NC_DB_PASSWORD}
 
     volumes:
-      - database_volume:/var/lib/mysql:Z
+      - maria_database_volume:/var/lib/mysql:Z
       # Custom config file with recommended setting for nextcloud
       - ./mariadb-cnf.d:/etc/mysql/conf.d:ro
 
@@ -139,20 +139,26 @@ networks:
   backend:
     name: backend
     driver: bridge
+
   frontend:
     name: frontend
     driver: bridge
 
 volumes:
-  nextcloud_test_data:
+  nextcloud_user_data:
     driver: local
-  nextcloud_test_install:
+    
+  nextcloud_install:
     driver: local
-  nextcloud_test_config:
+
+  nextcloud_config:
     driver: local
-  nextcloud_test_themes:
+
+  nextcloud_themes:
     driver: local
-  database_volume:
+  
+  maria_database_volume:
     driver: local
+  
   traefik_certificates:
     driver: local
