@@ -90,6 +90,10 @@ services:
     image: redis:7-alpine
     container_name: nextcloud_redis
     restart: unless-stopped
+
+    volumes:
+      - redis-data:/data
+
     networks:
       - backend
 
@@ -160,5 +164,8 @@ volumes:
   maria-database-volume:
     driver: local
   
+  redis-data:
+    driver: local
+
   traefik-certificates:
     driver: local
