@@ -32,24 +32,24 @@ apt-get install -y tzdata
 # Install PHP
 echo -e "${GREEN}Installing PHP and required modules${DEFAULT_COLOUR}"
 apt-get install -y \
-    php8.3 \
-    php8.3-xml \
-    php8.3-curl \
-    php8.3-gd \
-    php-json \
-    php8.3-mbstring \
-    php8.3-zip \
-    php8.3-mysql
+    php8.4 \
+    php8.4-xml \
+    php8.4-curl \
+    php8.4-gd \
+    php8.4-mbstring \
+    php8.4-zip \
+    php8.4-mysql
 
 echo -e "${GREEN}Installing recommended PHP modules${DEFAULT_COLOUR}"
 apt-get install -y \
-    php8.3-bz2 \
-    php8.3-intl \
-    php8.3-smbclient \
-    php8.3-bcmath \
-    php8.3-gmp \
-    php8.3-redis \
-    php8.3-imagick \
+    php8.4-bz2 \
+    php8.4-intl \
+    php8.4-smbclient \
+    php8.4-bcmath \
+    php8.4-gmp \
+    php8.4-redis \
+    php8.4-imagick \
+    php8.4-apcu \
     libmagickcore-6.q16-6-extra
 
 # Configure PHP settings per Nextcloud recommendations
