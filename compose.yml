@@ -10,10 +10,10 @@ services:
       - frontend
     
     volumes:
-      - nextcloud_install:/var/www/nextcloud
-      - nextcloud_user_data:/var/nextcloud/data
-      - nextcloud_config:/var/www/nextcloud/config
-      - nextcloud_themes:/var/www/nextcloud/themes
+      - nextcloud-install:/var/www/nextcloud
+      - nextcloud-user-data:/var/nextcloud/data
+      - nextcloud-config:/var/www/nextcloud/config
+      - nextcloud-themes:/var/www/nextcloud/themes
 
     depends_on:
       db:
@@ -73,7 +73,7 @@ services:
       MYSQL_PASSWORD: ${NC_DB_PASSWORD}
 
     volumes:
-      - maria_database_volume:/var/lib/mysql:Z
+      - maria-database-volume:/var/lib/mysql:Z
       # Custom config file with recommended setting for nextcloud
       - ./mariadb-cnf.d:/etc/mysql/conf.d:ro
 
@@ -128,7 +128,7 @@ services:
       # Map the Docker socket so traefik can communicate with Docker.
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # Volume for storing TLS certificates from LetsEncrypt
-      - traefik_certificates:/letsencrypt
+      - traefik-certificates:/letsencrypt
     
     networks:
       - frontend
@@ -145,20 +145,20 @@ networks:
     driver: bridge
 
 volumes:
-  nextcloud_user_data:
+  nextcloud-user-data:
     driver: local
     
-  nextcloud_install:
+  nextcloud-install:
     driver: local
 
-  nextcloud_config:
+  nextcloud-config:
     driver: local
 
-  nextcloud_themes:
+  nextcloud-themes:
     driver: local
   
-  maria_database_volume:
+  maria-database-volume:
     driver: local
   
-  traefik_certificates:
+  traefik-certificates:
     driver: local
