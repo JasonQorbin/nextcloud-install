@@ -11,7 +11,7 @@ services:
     
     volumes:
       - nextcloud-install:/var/www/nextcloud
-      - nextcloud-user-data:/var/nextcloud/data
+      - nextcloud-user-data:/var/www/nextcloud/data
       - nextcloud-config:/var/www/nextcloud/config
       - nextcloud-themes:/var/www/nextcloud/themes
 
