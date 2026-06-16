@@ -18,7 +18,7 @@ apt-get upgrade -y
 # Install tzdata and set timezone so that the installation doesn't get interrupted.
 # If the TIME_ZONE environment variable has not been set then use UCT as the default.
 if [[ -z "${TIME_ZONE}" ]]; then
-    TIME_ZONE="UCT"
+    TIME_ZONE="UTC"
 fi
 
 export DEBIAN_FRONTEND=noninteractive 
@@ -52,24 +52,31 @@ apt-get install -y \
     php8.4-apcu \
     libmagickcore-6.q16-6-extra
 
-# Configure PHP settings per Nextcloud recommendations
-PHP_INI="/etc/php/8.3/apache2/php.ini"
-# Change the memory limit in the configuration file
-sed -i 's/.*memory_limit.*/memory_limit = 512M/' $PHP_INI
-# Disable PHP output buffering per nextcloud recommendations
-sed -i 's/.*output_buffering.*/output_buffering = off/' $PHP_INI
-# Set the timezone in the PHP config in case it cannot read the system time zone. 
-sed -i 's|;date.timezone =|date.timezone = ${TZ}|' $PHP_INI
-sed -i 's/;opcache.enable=1/opcache.enable=1/g' $PHP_INI
-sed -i 's/;opcache.enable_cli=0/opcache.enable_cli=1/g' $PHP_INI
-sed -i 's/;opcache.interned_strings_buffer=8/opcache.interned_strings_buffer=16/g' $PHP_INI
-# Set the number of PHP scripts that can be cached in memory to 10000
-sed -i 's/;opcache.max_accelerated_files=10000/opcache.max_accelerated_files=10000/g' $PHP_INI
-# Set the amount of memory for caching compiled bytecode 128MB
-sed -i 's/;opcache.memory_consumption=128/opcache.memory_consumption=128/g' $PHP_INI
-# Set compiled bytecode to retain comments. Essential to allow the database abstraction layer (Doctrine) to parse metadata annotations
-sed -i 's/;opcache.save_comments=1/opcache.save_comments=1/g' $PHP_INI
-sed -i 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g' $PHP_INI
+# Configure PHP settings per Nextcloud recommendations for PHP 8.4
+# We use a loop to apply these rules to BOTH Apache and CLI configurations
+for RUNTIME in apache2 cli; do
+    PHP_INI="/etc/php/8.4/${RUNTIME}/php.ini"
+    
+    if [ -f "$PHP_INI" ]; then
+        echo -e "${GREEN}Configuring PHP 8.4 ${RUNTIME} settings...${DEFAULT_COLOUR}"
+        
+        # Base Performance Specs
+        sed -i 's/^;\? \?memory_limit.*/memory_limit = 512M/' $PHP_INI
+        sed -i 's/^;\? \?output_buffering.*/output_buffering = off/' $PHP_INI
+        sed -i 's|^;\? \?date.timezone.*|date.timezone = '"${TIME_ZONE}"'|' $PHP_INI
+        
+        # Opcache Core Activation
+        sed -i 's/^;\? \?opcache.enable\s*=.*/opcache.enable=1/' $PHP_INI
+        sed -i 's/^;\? \?opcache.enable_cli\s*=.*/opcache.enable_cli=1/' $PHP_INI
+        
+        # Opcache Optimization (Fixes the Interned Strings Warning)
+        sed -i 's/^;\? \?opcache.interned_strings_buffer\s*=.*/opcache.interned_strings_buffer=16/' $PHP_INI
+        sed -i 's/^;\? \?opcache.max_accelerated_files\s*=.*/opcache.max_accelerated_files=10000/' $PHP_INI
+        sed -i 's/^;\? \?opcache.memory_consumption\s*=.*/opcache.memory_consumption=128/' $PHP_INI
+        sed -i 's/^;\? \?opcache.save_comments\s*=.*/opcache.save_comments=1/' $PHP_INI
+        sed -i 's/^;\? \?opcache.revalidate_freq\s*=.*/opcache.revalidate_freq=60/' $PHP_INI
+    fi
+done
 
 # Install ffmpeg to allow for meadia playback. This is a large package.
 echo -e "${GREEN}Installing ffmpeg${DEFAULT_COLOUR}"
