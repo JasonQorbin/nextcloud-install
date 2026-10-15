@@ -1,4 +1,5 @@
 # MariaDB configuration recommended by Nextcloud 
+# This file is sourced into the mariadb container by docker compose.
 
 [mariadb]
 skip_name_resolve = 0
