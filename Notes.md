@@ -49,6 +49,9 @@
 
 # Post install commands
 
+During development there were several settings that needed to be changed in the config file to clear some of the error
+messages in the admin panel. These `occ` commands were used to apply them quickly.
+
 ```bash
 php occ config:system:set redis --value='{"host":"redis", "port":"6379"}' --type=json
 php occ config:system:set memcache.local --value="\OC\Memcache\Redis"
