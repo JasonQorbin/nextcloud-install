@@ -1,6 +1,6 @@
 services:
   nextcloud:
-    image: nextcloudrunner:33.0.3
+    image: nextcloudrunner:33.0.10
     pull_policy: never
     container_name: nextcloud
     restart: unless-stopped
